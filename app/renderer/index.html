@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>整体クリック・セラピー</title>
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- タイトル画面 -->
+        <div id="title-screen" class="screen active">
+            <div class="background" id="title-bg"></div>
+            <div class="title-logo">
+                <h1>整体クリック・セラピー</h1>
+                <p class="subtitle">～癒しのリラクゼーション～</p>
+            </div>
+            <div class="menu-buttons">
+                <button id="btn-start" class="menu-btn">Start</button>
+                <button id="btn-load" class="menu-btn">Load</button>
+                <button id="btn-config" class="menu-btn">Config</button>
+                <button id="btn-exit" class="menu-btn">Exit</button>
+            </div>
+            <div class="character-preview" id="title-character"></div>
+        </div>
+
+        <!-- 会話シーン -->
+        <div id="dialog-screen" class="screen">
+            <div class="background" id="dialog-bg"></div>
+            <div class="character-display" id="dialog-character"></div>
+            <div class="dialog-box">
+                <div class="dialog-content">
+                    <div class="character-name" id="speaker-name"></div>
+                    <div class="dialog-text" id="dialog-text"></div>
+                </div>
+                <button id="btn-next" class="dialog-next">▶</button>
+            </div>
+        </div>
+
+        <!-- メインゲーム画面 -->
+        <div id="game-screen" class="screen">
+            <div class="background" id="game-bg"></div>
+            
+            <!-- HUD -->
+            <div class="hud-panel">
+                <div class="gauge-container">
+                    <label>リラックスゲージ</label>
+                    <div class="gauge">
+                        <div class="gauge-fill" id="relax-gauge"></div>
+                        <div class="gauge-text" id="gauge-percentage">0%</div>
+                    </div>
+                </div>
+                
+                <div class="combo-display">
+                    <div class="combo-counter" id="combo-counter">コンボ: 0</div>
+                </div>
+            </div>
+
+            <!-- 施術エリア -->
+            <div class="therapy-area">
+                <div class="body-illustration" id="body-display">
+                    <div class="click-area" id="area-shoulder" data-part="shoulder">
+                        <span class="part-label">肩</span>
+                    </div>
+                    <div class="click-area" id="area-neck" data-part="neck">
+                        <span class="part-label">首</span>
+                    </div>
+                    <div class="click-area" id="area-back" data-part="back">
+                        <span class="part-label">背中</span>
+                    </div>
+                    <div class="click-area" id="area-waist" data-part="waist">
+                        <span class="part-label">腰</span>
+                    </div>
+                    <div class="click-area" id="area-thigh" data-part="thigh">
+                        <span class="part-label">太もも</span>
+                    </div>
+                    <div class="click-area" id="area-calf" data-part="calf">
+                        <span class="part-label">ふくらはぎ</span>
+                    </div>
+                    <div class="click-area" id="area-foot" data-part="foot">
+                        <span class="part-label">足裏</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- スキルパネル -->
+            <div class="skill-panel">
+                <h3>スキル</h3>
+                <button class="skill-btn" id="skill-warm-towel" data-skill="warm_towel">
+                    <div class="skill-icon">🔥</div>
+                    <span>温タオル</span>
+                </button>
+                <button class="skill-btn" id="skill-pressure" data-skill="finger_pressure">
+                    <div class="skill-icon">👆</div>
+                    <span>指圧強化</span>
+                </button>
+                <button class="skill-btn" id="skill-rhythm" data-skill="rhythm_assist">
+                    <div class="skill-icon">🎵</div>
+                    <span>リズム補助</span>
+                </button>
+            </div>
+
+            <!-- キャラクター表示 -->
+            <div class="character-display" id="game-character"></div>
+        </div>
+
+        <!-- エンディング画面 -->
+        <div id="ending-screen" class="screen">
+            <div class="background" id="ending-bg"></div>
+            <div class="ending-content">
+                <h2 id="ending-title"></h2>
+                <div class="ending-character" id="ending-character"></div>
+                <div class="ending-text" id="ending-text"></div>
+                <div class="ending-buttons">
+                    <button id="btn-retry" class="ending-btn">もう一度施術する</button>
+                    <button id="btn-gallery" class="ending-btn">ギャラリー</button>
+                    <button id="btn-title" class="ending-btn">タイトルに戻る</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 設定画面 -->
+        <div id="config-screen" class="screen">
+            <div class="background"></div>
+            <div class="config-panel">
+                <h2>設定</h2>
+                <div class="config-item">
+                    <label>マスター音量</label>
+                    <input type="range" id="volume-master" min="0" max="100" value="70">
+                </div>
+                <div class="config-item">
+                    <label>BGM音量</label>
+                    <input type="range" id="volume-bgm" min="0" max="100" value="60">
+                </div>
+                <div class="config-item">
+                    <label>SE音量</label>
+                    <input type="range" id="volume-se" min="0" max="100" value="70">
+                </div>
+                <button id="btn-config-close" class="config-btn">閉じる</button>
+            </div>
+        </div>
+
+        <!-- エフェクト用レイヤー -->
+        <div id="effects-layer"></div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>

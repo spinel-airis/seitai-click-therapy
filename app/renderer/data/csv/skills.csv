@@ -1,0 +1,4 @@
+﻿"skill_id","name","duration","effect","icon"
+"warm_towel","温タオル","30","upper:+0.2/sec;all:+0.05","ui/skill_towel.png"
+"finger_pressure","指圧強化","10","click_multiplier:+0.5","ui/skill_pressure.png"
+"rhythm_assist","リズム補助","15","tempo_window:0.25-0.75","ui/skill_rhythm.png"

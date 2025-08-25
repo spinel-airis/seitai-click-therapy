@@ -1,0 +1,504 @@
+:root {
+    --panel: rgba(16, 16, 22, 0.88);
+    --accent: #8fd3aa;
+    --text-light: #eeeeee;
+    --text-dark: #2c3e50;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    --button-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    overflow: hidden;
+    background: #1a1a2e;
+}
+
+#game-container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* 画面管理 */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    z-index: 1;
+}
+
+/* タイトル画面 */
+#title-screen {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.title-logo {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+    color: white;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.title-logo h1 {
+    font-size: 48px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    animation: gentle-glow 3s ease-in-out infinite alternate;
+}
+
+.title-logo .subtitle {
+    font-size: 18px;
+    font-weight: 300;
+    opacity: 0.9;
+}
+
+.menu-buttons {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-btn, .dialog-next, .ending-btn, .config-btn {
+    background: var(--panel);
+    border: none;
+    color: var(--text-light);
+    padding: 12px 32px;
+    border-radius: 24px;
+    font-size: 18px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    box-shadow: var(--button-shadow);
+    min-width: 200px;
+    pointer-events: auto;
+    z-index: 101;
+    position: relative;
+}
+
+.menu-btn:hover, .dialog-next:hover, .ending-btn:hover, .config-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+    background: rgba(16, 16, 22, 0.95);
+}
+
+.menu-btn:active, .dialog-next:active, .ending-btn:active, .config-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 会話シーン */
+#dialog-screen .background {
+    background: linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 100%);
+}
+
+.character-display {
+    position: absolute;
+    right: 10%;
+    bottom: 0;
+    width: 400px;
+    height: 600px;
+    z-index: 5;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom;
+}
+
+.dialog-box {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1000px;
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 24px;
+    z-index: 10;
+    box-shadow: var(--shadow);
+}
+
+.character-name {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+
+.dialog-text {
+    font-size: 20px;
+    color: var(--text-light);
+    line-height: 1.6;
+    min-height: 60px;
+}
+
+.dialog-next {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    min-width: 50px;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* メインゲーム画面 */
+#game-screen .background {
+    background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.hud-panel {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 20px;
+    z-index: 100;
+    box-shadow: var(--shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gauge-container label {
+    display: block;
+    color: var(--text-light);
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.gauge {
+    position: relative;
+    width: 300px;
+    height: 24px;
+    background: #223;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.gauge-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #667eea, #9ef);
+    transition: width 0.3s ease;
+    border-radius: 12px;
+}
+
+.gauge-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.combo-display {
+    color: var(--text-light);
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.therapy-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    height: 500px;
+    z-index: 50;
+}
+
+.body-illustration {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.click-area {
+    position: absolute;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.click-area:hover {
+    border-color: var(--accent);
+    background: rgba(143, 211, 170, 0.2);
+}
+
+.click-area:active {
+    transform: scale(0.95);
+    background: rgba(143, 211, 170, 0.4);
+}
+
+.part-label {
+    color: var(--text-dark);
+    font-size: 14px;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    pointer-events: none;
+}
+
+#area-shoulder { top: 60px; left: 120px; width: 160px; height: 80px; }
+#area-neck { top: 20px; left: 160px; width: 80px; height: 50px; }
+#area-back { top: 140px; left: 140px; width: 120px; height: 120px; }
+#area-waist { top: 240px; left: 150px; width: 100px; height: 60px; }
+#area-thigh { top: 320px; left: 100px; width: 200px; height: 80px; }
+#area-calf { top: 400px; left: 120px; width: 160px; height: 60px; }
+#area-foot { top: 460px; left: 140px; width: 120px; height: 40px; }
+
+.skill-panel {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--panel);
+    border-radius: 16px;
+    padding: 20px;
+    width: 180px;
+    z-index: 120;
+    box-shadow: var(--shadow);
+}
+
+.skill-panel h3 {
+    color: var(--text-light);
+    font-size: 18px;
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.skill-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-light);
+}
+
+.skill-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.skill-icon {
+    font-size: 32px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skill-btn span {
+    font-size: 12px;
+}
+
+/* エンディング画面 */
+.ending-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    color: var(--text-dark);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    max-width: 600px;
+}
+
+.ending-content h2 {
+    font-size: 32px;
+    margin-bottom: 24px;
+    color: var(--accent);
+}
+
+.ending-text {
+    font-size: 18px;
+    margin: 24px 0;
+    line-height: 1.6;
+}
+
+.ending-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+.ending-btn {
+    min-width: 160px;
+}
+
+/* 設定画面 */
+.config-panel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--panel);
+    border-radius: 24px;
+    padding: 40px;
+    width: 400px;
+    z-index: 10;
+    box-shadow: var(--shadow);
+}
+
+.config-panel h2 {
+    color: var(--text-light);
+    font-size: 24px;
+    margin-bottom: 32px;
+    text-align: center;
+}
+
+.config-item {
+    margin-bottom: 24px;
+}
+
+.config-item label {
+    display: block;
+    color: var(--text-light);
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.config-item input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #333;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.config-item input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+}
+
+/* エフェクト */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(143, 211, 170, 0.6) 0%, transparent 70%);
+    pointer-events: none;
+    animation: ripple 0.6s ease-out;
+    z-index: 999;
+}
+
+/* アニメーション */
+@keyframes gentle-glow {
+    0% { text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); }
+    100% { text-shadow: 0 4px 16px rgba(143, 211, 170, 0.4); }
+}
+
+@keyframes ripple {
+    0% {
+        width: 0px;
+        height: 0px;
+        opacity: 1;
+    }
+    100% {
+        width: 200px;
+        height: 200px;
+        opacity: 0;
+    }
+}
+
+/* レスポンシブ */
+@media (max-width: 1024px) {
+    .therapy-area {
+        width: 350px;
+        height: 450px;
+    }
+    
+    .skill-panel {
+        width: 150px;
+    }
+    
+    .hud-panel {
+        width: 95%;
+    }
+}
+
+@media (max-width: 768px) {
+    .title-logo h1 {
+        font-size: 36px;
+    }
+    
+    .therapy-area {
+        width: 300px;
+        height: 400px;
+    }
+    
+    .skill-panel {
+        position: relative;
+        width: 100%;
+        margin: 10px 0;
+        transform: none;
+    }
+}

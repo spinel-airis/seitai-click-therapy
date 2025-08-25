@@ -1,0 +1,7 @@
+﻿"anim_id","type","duration","easing"
+"ripple_click","ripple","220","ease-out"
+"button_hover","scale","120","ease-in-out"
+"panel_vibrate","shake","120","linear"
+"level_up","scale","300","ease-out"
+"fade_transition","fade","500","ease-in-out"
+"breath_anim","bounce","2000","ease-in-out"

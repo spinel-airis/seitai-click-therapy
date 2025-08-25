@@ -1,0 +1,8 @@
+﻿"icon_id","image","tooltip","tint"
+"icon_combo","ui/icon_combo.png","テンポ維持で倍率UP","#FFFFFF"
+"icon_warm_towel","ui/icon_towel.png","温タオル：上半身効果UP","#FFB347"
+"icon_pressure","ui/icon_pressure.png","指圧強化：クリック倍率UP","#87CEEB"
+"icon_rhythm","ui/icon_rhythm.png","リズム補助：テンポ判定緩和","#98FB98"
+"icon_aroma","ui/icon_aroma.png","アロマ：雰囲気ブースト","#DDA0DD"
+"icon_music","ui/icon_music.png","BGM設定","#F0E68C"
+"icon_light","ui/icon_light.png","照明調整","#FFE4B5"

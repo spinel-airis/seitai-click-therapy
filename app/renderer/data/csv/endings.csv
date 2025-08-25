@@ -1,0 +1,5 @@
+﻿"ending_id","name","bg","bgm","priority","condition"
+"E1","かるがるショルダー","bg/room_bright.png","bgm/light.ogg","2","shoulder_neck>=45"
+"E2","姿勢シャン","bg/room_clean.png","bgm/clear.ogg","2","lower_body>=55"
+"E3","全身調律","bg/room_warm.png","bgm/warm.ogg","1","balance_type"
+"E4","プロ仕上げ","bg/room_pro.png","bgm/pro.ogg","3","combo_master"

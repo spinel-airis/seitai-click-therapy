@@ -1,0 +1,60 @@
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+let mainWindow;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
+    },
+    icon: path.join(__dirname, 'assets/icon.png'),
+    title: '整体クリック・セラピー',
+    resizable: true,
+    minWidth: 800,
+    minHeight: 600
+  });
+
+  mainWindow.loadFile(path.join(__dirname, 'renderer/index.html'));
+
+  if (process.argv.includes('--dev')) {
+    mainWindow.webContents.openDevTools();
+  }
+}
+
+ipcMain.handle('readText', async (_, relPath) => {
+  try {
+    const fullPath = path.join(__dirname, 'renderer', relPath);
+    const buf = fs.readFileSync(fullPath);
+    let text = buf.toString('utf8');
+    
+    if (text.charCodeAt(0) === 0xFEFF) {
+      text = text.slice(1);
+    }
+    
+    text = text.replace(/\r\n/g, '\n');
+    return text;
+  } catch (error) {
+    console.error('Failed to read file:', relPath, error);
+    throw error;
+  }
+});
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  }
+});

@@ -1,0 +1,6 @@
+﻿"char_id","level","face_image","breath_anim"
+"koharu","1","face/koharu_tense.png","anim/breath_fast.json"
+"koharu","2","face/koharu_soften.png","anim/breath_normal.json"
+"koharu","3","face/koharu_relax.png","anim/breath_slow.json"
+"koharu","4","face/koharu_sleepy.png","anim/breath_sleepy.json"
+"koharu","5","face/koharu_peaceful.png","anim/breath_deep.json"

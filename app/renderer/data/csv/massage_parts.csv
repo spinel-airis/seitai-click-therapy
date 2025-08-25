@@ -1,0 +1,8 @@
+﻿"part_id","synergy_group","fatigue_rate","combo_bonus"
+"shoulder","upper","0.15","0.1"
+"neck","upper","0.18","0.12"
+"back","middle","0.12","0.08"
+"waist","middle","0.14","0.09"
+"thigh","lower","0.10","0.06"
+"calf","lower","0.13","0.07"
+"foot","lower","0.16","0.05"

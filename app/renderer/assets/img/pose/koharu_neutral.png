@@ -1,0 +1,31 @@
+<svg width="200" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="200" height="300" fill="#f8f4f0"/>
+  
+  <!-- 頭 -->
+  <circle cx="100" cy="80" r="40" fill="#ffeaa7" stroke="#333" stroke-width="2"/>
+  
+  <!-- 髪 -->
+  <path d="M 65 50 Q 100 30 135 50 Q 130 40 125 45 Q 115 35 100 40 Q 85 35 75 45 Q 70 40 65 50" fill="#ff7675"/>
+  
+  <!-- 目 -->
+  <circle cx="88" cy="75" r="5" fill="#333"/>
+  <circle cx="112" cy="75" r="5" fill="#333"/>
+  
+  <!-- 口 -->
+  <path d="M 95 90 Q 100 95 105 90" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- 体 -->
+  <rect x="80" y="120" width="40" height="80" rx="5" fill="#74b9ff"/>
+  
+  <!-- 腕 -->
+  <rect x="60" y="130" width="20" height="50" rx="10" fill="#ffeaa7"/>
+  <rect x="120" y="130" width="20" height="50" rx="10" fill="#ffeaa7"/>
+  
+  <!-- 脚 -->
+  <rect x="85" y="200" width="15" height="60" rx="7" fill="#2d3436"/>
+  <rect x="100" y="200" width="15" height="60" rx="7" fill="#2d3436"/>
+  
+  <!-- テキスト -->
+  <text x="100" y="280" text-anchor="middle" font-family="Arial" font-size="14" fill="#333">春野こはる</text>
+</svg>

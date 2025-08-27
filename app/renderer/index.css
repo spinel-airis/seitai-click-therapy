@@ -121,6 +121,19 @@ body {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* タイトル画面のキャラクタープレビュー */
+.character-preview, #title-character {
+    position: absolute;
+    right: 5%;
+    bottom: 10%;
+    width: 300px;
+    height: 400px;
+    z-index: 5;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: bottom center;
+}
+
 /* 会話シーン */
 #dialog-screen .background {
     background: linear-gradient(to bottom, #e3f2fd 0%, #bbdefb 100%);
@@ -128,7 +141,8 @@ body {
 
 .character-display {
     position: absolute;
-    right: 10%;
+    left: 50%;
+    transform: translateX(-50%);
     bottom: 0;
     width: 400px;
     height: 600px;
@@ -349,6 +363,20 @@ body {
 
 .skill-btn span {
     font-size: 12px;
+}
+
+/* ゲーム画面のキャラクター表示 */
+#game-character {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 400px;
+    z-index: 110;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
 /* エンディング画面 */

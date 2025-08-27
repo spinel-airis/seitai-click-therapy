@@ -1,0 +1,25 @@
+<svg width="200" height="250" xmlns="http://www.w3.org/2000/svg">
+  <!-- 顔の輪郭 -->
+  <ellipse cx="100" cy="120" rx="60" ry="80" fill="#FDBCB4" stroke="#E8A798" stroke-width="2" />
+  
+  <!-- 髪 -->
+  <path d="M40 80 Q100 40 160 80 Q160 100 140 120 Q120 140 100 130 Q80 140 60 120 Q40 100 40 80" fill="#8B4513" />
+  
+  <!-- 目 -->
+  <ellipse cx="80" cy="100" rx="8" ry="12" fill="#FFF" />
+  <ellipse cx="120" cy="100" rx="8" ry="12" fill="#FFF" />
+  <circle cx="80" cy="102" r="4" fill="#4682B4" />
+  <circle cx="120" cy="102" r="4" fill="#4682B4" />
+  
+  <!-- 鼻 -->
+  <ellipse cx="100" cy="115" rx="2" ry="3" fill="#E8A798" />
+  
+  <!-- 口 -->
+  <path d="M95 130 Q100 135 105 130" stroke="#D2691E" stroke-width="2" fill="none" />
+  
+  <!-- 制服っぽい襟 -->
+  <rect x="80" y="200" width="40" height="50" fill="#4169E1" />
+  <polygon points="100,200 90,210 110,210" fill="#FFF" />
+  
+  <text x="100" y="280" text-anchor="middle" fill="#4682B4" font-size="12" font-family="Arial">こはる（仮）</text>
+</svg>

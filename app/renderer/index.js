@@ -247,6 +247,7 @@ class GameState {
     }
 
     showScreen(screenName) {
+        console.log(`Showing screen: ${screenName}`);
         // すべての画面を非表示
         const screens = document.querySelectorAll('.screen');
         screens.forEach(screen => screen.classList.remove('active'));
@@ -256,6 +257,73 @@ class GameState {
         if (targetScreen) {
             targetScreen.classList.add('active');
             this.currentScreen = screenName;
+            
+            // 背景画像を設定
+            this.setBackground(screenName);
+            
+            // キャラクターを表示
+            console.log(`Calling setCharacter for: ${screenName}`);
+            this.setCharacter(screenName);
+        } else {
+            console.log(`Target screen not found: ${screenName}-screen`);
+        }
+    }
+
+    setBackground(screenName) {
+        let sceneId = screenName;
+        // ゲーム画面は therapy_room シーンを使用
+        if (screenName === 'game') {
+            sceneId = 'therapy_room';
+        }
+        
+        const sceneData = this.gameData.scenes?.find(s => s.scene_id === sceneId);
+        if (sceneData && sceneData.bg_image) {
+            const bgElement = document.getElementById(`${screenName}-bg`);
+            if (bgElement) {
+                bgElement.style.backgroundImage = `url('assets/${sceneData.bg_image}')`;
+                bgElement.style.backgroundSize = 'cover';
+                bgElement.style.backgroundPosition = 'center';
+                bgElement.style.backgroundRepeat = 'no-repeat';
+            }
+        }
+    }
+
+    setCharacter(screenName) {
+        console.log(`setCharacter called with: ${screenName}`);
+        if (screenName === 'title') {
+            console.log('Setting title character');
+            const characterElement = document.getElementById('title-character');
+            if (characterElement) {
+                characterElement.style.backgroundImage = `url('assets/face/koharu_title.svg')`;
+                characterElement.style.backgroundSize = 'contain';
+                characterElement.style.backgroundPosition = 'center';
+                characterElement.style.backgroundRepeat = 'no-repeat';
+            }
+        } else if (screenName === 'dialog') {
+            console.log('Setting dialog character');
+            const characterElement = document.getElementById('dialog-character');
+            if (characterElement) {
+                characterElement.style.backgroundImage = `url('assets/pose/koharu_dialog.svg')`;
+                characterElement.style.backgroundSize = 'contain';
+                characterElement.style.backgroundPosition = 'bottom center';
+                characterElement.style.backgroundRepeat = 'no-repeat';
+            }
+        } else if (screenName === 'game') {
+            console.log('Entering game character setup');
+            const characterElement = document.getElementById('game-character');
+            if (characterElement) {
+                console.log('Setting game character image...');
+                const imagePath = './assets/pose/koharu_therapy.svg';
+                console.log('Image path:', imagePath);
+                characterElement.style.backgroundImage = `url("${imagePath}")`;
+                characterElement.style.backgroundSize = 'contain';
+                characterElement.style.backgroundPosition = 'center';
+                characterElement.style.backgroundRepeat = 'no-repeat';
+                console.log('Background image set:', characterElement.style.backgroundImage);
+                console.log('Element computed style:', window.getComputedStyle(characterElement).backgroundImage);
+            } else {
+                console.log('game-character element not found!');
+            }
         }
     }
 
@@ -276,19 +344,23 @@ class GameState {
     }
 
     showDialog() {
+        console.log(`Looking for dialog: scene=${this.currentDialog.scene}, index=${this.currentDialog.index + 1}`);
         const dialogData = this.gameData.dialogues.find(d => 
             d.scene_id === this.currentDialog.scene && 
             parseInt(d.order) === this.currentDialog.index + 1
         );
 
-        if (dialogData) {
+        if (dialogData && this.currentDialog.index < 1) {
+            // 最初の会話だけ表示
+            console.log(`Found dialog:`, dialogData);
             const characterName = document.getElementById('speaker-name');
             const dialogText = document.getElementById('dialog-text');
             
             characterName.textContent = this.getCharacterName(dialogData.char_id);
             this.typewriterEffect(dialogText, dialogData.text);
         } else {
-            // 会話終了、ゲーム画面へ
+            console.log('Moving to game screen after first dialog');
+            // 1回会話を見せた後、ゲーム画面へ
             this.showScreen('game');
             this.updateHUD();
         }
@@ -313,6 +385,7 @@ class GameState {
     }
 
     nextDialog() {
+        console.log(`nextDialog: current index=${this.currentDialog.index}, incrementing to ${this.currentDialog.index + 1}`);
         this.currentDialog.index++;
         this.showDialog();
     }

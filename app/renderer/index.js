@@ -15,6 +15,7 @@ class GameState {
         this.relaxGauge = 0;
         this.combo = 0;
         this.lastClick = 0;
+        this.currentTypewriterTimer = null;
         this.balance = {
             shoulder: 0,
             neck: 0,
@@ -25,7 +26,22 @@ class GameState {
             foot: 0
         };
         this.skillCooldowns = {};
+        this.activeSkills = {};
+        this.skillsUsed = {};
+        this.skillTimers = {};
         this.currentDialog = { scene: '', index: 0 };
+        
+        // 新しいゲームシステム用変数
+        this.currentTarget = null;
+        this.targetStartTime = 0;
+        this.gameActive = false;
+        this.targetInterval = null;
+        this.maxCombo = 0;
+        this.missCount = 0;
+        this.selectedCharacter = null;
+        
+        // 音響用のAudioContextを初期化
+        this.audioContext = null;
         
         this.init();
     }
@@ -127,10 +143,17 @@ class GameState {
     }
 
     setupEventListeners() {
+        // キャラクター選択
+        this.setupCharacterSelection();
+        
         // タイトルメニュー
         const btnStart = document.getElementById('btn-start');
-        const btnConfig = document.getElementById('btn-config');
         const btnExit = document.getElementById('btn-exit');
+        
+        // 初期状態でStartボタンを無効化
+        if (btnStart) {
+            btnStart.disabled = true;
+        }
 
         if (btnStart) {
             btnStart.addEventListener('click', () => {
@@ -140,13 +163,6 @@ class GameState {
             });
         }
 
-        if (btnConfig) {
-            btnConfig.addEventListener('click', () => {
-                console.log('Config button clicked!');
-                this.playSound('button_click');
-                this.showScreen('config');
-            });
-        }
 
         if (btnExit) {
             btnExit.addEventListener('click', () => {
@@ -166,28 +182,26 @@ class GameState {
             });
         }
 
-        // メインゲーム - クリックエリア
-        const clickAreas = document.querySelectorAll('.click-area');
-        clickAreas.forEach(area => {
-            area.addEventListener('click', (e) => {
-                const part = e.currentTarget.dataset.part;
-                console.log('Clicked part:', part);
-                this.clickPart(part, e);
+        // メインゲーム - 身体部位クリックエリア
+        const bodyParts = document.querySelectorAll('.body-part');
+        bodyParts.forEach(part => {
+            part.addEventListener('click', (e) => {
+                const partName = e.currentTarget.dataset.part;
+                console.log('Clicked body part:', partName);
+                this.clickBodyPart(partName, e);
             });
 
-            area.addEventListener('mouseenter', () => {
+            part.addEventListener('mouseenter', () => {
                 this.playSound('button_hover');
             });
         });
 
-        // スキルボタン
+        // スキルボタン（自動発動のため無効化）
         const skillButtons = document.querySelectorAll('.skill-btn');
         skillButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const skill = e.currentTarget.dataset.skill;
-                console.log('Used skill:', skill);
-                this.useSkill(skill);
-            });
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            // イベントリスナーは削除（自動発動のため）
         });
 
         // エンディングボタン
@@ -212,15 +226,6 @@ class GameState {
             });
         }
 
-        // 設定
-        const btnConfigClose = document.getElementById('btn-config-close');
-        if (btnConfigClose) {
-            btnConfigClose.addEventListener('click', () => {
-                console.log('Config close button clicked!');
-                this.playSound('button_click');
-                this.showScreen('title');
-            });
-        }
 
         // 音量調整
         const volumeMaster = document.getElementById('volume-master');
@@ -269,6 +274,49 @@ class GameState {
         }
     }
 
+    setupCharacterSelection() {
+        const characterCards = document.querySelectorAll('.character-card');
+        const btnStart = document.getElementById('btn-start');
+        
+        // キャラクターポートレートを設定
+        this.setCharacterPortraits();
+        
+        characterCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // 既存の選択を解除
+                characterCards.forEach(c => c.classList.remove('selected'));
+                
+                // 選択したカードをハイライト
+                card.classList.add('selected');
+                
+                // 選択されたキャラクターを記録
+                this.selectedCharacter = card.dataset.character;
+                console.log('Selected character:', this.selectedCharacter);
+                
+                // タイトル画面のプレビューを更新
+                this.setCharacter('title');
+                
+                // Startボタンを有効化
+                if (btnStart) {
+                    btnStart.disabled = false;
+                }
+            });
+        });
+    }
+
+    setCharacterPortraits() {
+        const portraits = ['koharu', 'suzu', 'michiru'];
+        portraits.forEach(char => {
+            const portraitElement = document.getElementById(`portrait-${char}`);
+            if (portraitElement) {
+                portraitElement.style.backgroundImage = `url('assets/face/${char}_title.svg')`;
+                portraitElement.style.backgroundSize = 'contain';
+                portraitElement.style.backgroundPosition = 'center';
+                portraitElement.style.backgroundRepeat = 'no-repeat';
+            }
+        });
+    }
+
     setBackground(screenName) {
         let sceneId = screenName;
         // ゲーム画面は therapy_room シーンを使用
@@ -290,11 +338,13 @@ class GameState {
 
     setCharacter(screenName) {
         console.log(`setCharacter called with: ${screenName}`);
+        const selectedChar = this.selectedCharacter || 'koharu';
+        
         if (screenName === 'title') {
             console.log('Setting title character');
             const characterElement = document.getElementById('title-character');
             if (characterElement) {
-                characterElement.style.backgroundImage = `url('assets/face/koharu_title.svg')`;
+                characterElement.style.backgroundImage = `url('assets/face/${selectedChar}_title.svg')`;
                 characterElement.style.backgroundSize = 'contain';
                 characterElement.style.backgroundPosition = 'center';
                 characterElement.style.backgroundRepeat = 'no-repeat';
@@ -303,26 +353,19 @@ class GameState {
             console.log('Setting dialog character');
             const characterElement = document.getElementById('dialog-character');
             if (characterElement) {
-                characterElement.style.backgroundImage = `url('assets/pose/koharu_dialog.svg')`;
+                characterElement.style.backgroundImage = `url('assets/pose/${selectedChar}_dialog.svg')`;
                 characterElement.style.backgroundSize = 'contain';
                 characterElement.style.backgroundPosition = 'bottom center';
                 characterElement.style.backgroundRepeat = 'no-repeat';
             }
         } else if (screenName === 'game') {
-            console.log('Entering game character setup');
+            console.log('Setting game character');
             const characterElement = document.getElementById('game-character');
             if (characterElement) {
-                console.log('Setting game character image...');
-                const imagePath = './assets/pose/koharu_therapy.svg';
-                console.log('Image path:', imagePath);
-                characterElement.style.backgroundImage = `url("${imagePath}")`;
+                characterElement.style.backgroundImage = `url('assets/pose/${selectedChar}_therapy.svg')`;
                 characterElement.style.backgroundSize = 'contain';
                 characterElement.style.backgroundPosition = 'center';
                 characterElement.style.backgroundRepeat = 'no-repeat';
-                console.log('Background image set:', characterElement.style.backgroundImage);
-                console.log('Element computed style:', window.getComputedStyle(characterElement).backgroundImage);
-            } else {
-                console.log('game-character element not found!');
             }
         }
     }
@@ -340,28 +383,52 @@ class GameState {
         this.lastClick = 0;
         Object.keys(this.balance).forEach(key => this.balance[key] = 0);
         this.skillCooldowns = {};
+        this.activeSkills = {};
+        this.skillsUsed = {};
+        this.skillTimers = {};
+        this.currentTarget = null;
+        this.gameActive = false;
+        this.maxCombo = 0;
+        this.missCount = 0;
+        if (this.targetInterval) {
+            clearInterval(this.targetInterval);
+            this.targetInterval = null;
+        }
+        this.updateSkillButtons();
+        this.updateStatusPanel();
         this.updateHUD();
     }
 
     showDialog() {
-        console.log(`Looking for dialog: scene=${this.currentDialog.scene}, index=${this.currentDialog.index + 1}`);
+        const selectedChar = this.selectedCharacter || 'koharu';
+        console.log(`Looking for dialog: scene=${this.currentDialog.scene}, char=${selectedChar}, index=${this.currentDialog.index + 1}`);
+        
         const dialogData = this.gameData.dialogues.find(d => 
             d.scene_id === this.currentDialog.scene && 
+            d.char_id === selectedChar &&
             parseInt(d.order) === this.currentDialog.index + 1
         );
 
-        if (dialogData && this.currentDialog.index < 1) {
-            // 最初の会話だけ表示
+        if (dialogData) {
+            // 会話を表示
             console.log(`Found dialog:`, dialogData);
             const characterName = document.getElementById('speaker-name');
             const dialogText = document.getElementById('dialog-text');
             
-            characterName.textContent = this.getCharacterName(dialogData.char_id);
+            // 選択されたキャラクターの名前を表示
+            characterName.textContent = this.getCharacterName(selectedChar);
             this.typewriterEffect(dialogText, dialogData.text);
-        } else {
-            console.log('Moving to game screen after first dialog');
-            // 1回会話を見せた後、ゲーム画面へ
+        } else if (this.currentDialog.index >= 3) {
+            console.log('All 3 dialogs completed, moving to game screen');
+            // 3回の会話完了後、ゲーム画面へ
             this.showScreen('game');
+            this.startBodyPartGame();
+            this.updateHUD();
+        } else {
+            console.log('Dialog not found but haven\'t completed 3 dialogs yet');
+            // 会話データが見つからないが3回未満の場合はゲーム画面へ
+            this.showScreen('game');
+            this.startBodyPartGame();
             this.updateHUD();
         }
     }
@@ -372,14 +439,19 @@ class GameState {
     }
 
     typewriterEffect(element, text, speed = 50) {
+        if (this.currentTypewriterTimer) {
+            clearInterval(this.currentTypewriterTimer);
+        }
+        
         element.textContent = '';
         let i = 0;
-        const timer = setInterval(() => {
+        this.currentTypewriterTimer = setInterval(() => {
             if (i < text.length) {
                 element.textContent += text.charAt(i);
                 i++;
             } else {
-                clearInterval(timer);
+                clearInterval(this.currentTypewriterTimer);
+                this.currentTypewriterTimer = null;
             }
         }, speed);
     }
@@ -390,44 +462,227 @@ class GameState {
         this.showDialog();
     }
 
-    clickPart(part, event) {
-        const now = performance.now();
-        const deltaTime = (now - this.lastClick) / 1000;
-
-        // テンポ判定
-        const comboWindow = this.getGameBalance('combo_window_min', 0.35);
-        const comboWindowMax = this.getGameBalance('combo_window_max', 0.65);
-        
-        if (deltaTime >= comboWindow && deltaTime <= comboWindowMax && this.lastClick > 0) {
-            this.combo++;
-        } else if (this.lastClick > 0) {
-            this.combo = 1;
-        } else {
-            this.combo = 1;
+    clickBodyPart(partName, event) {
+        if (!this.gameActive || !this.currentTarget) {
+            return;
         }
-
-        this.lastClick = now;
-
-        // 効果計算
-        const baseGain = this.getPartBaseGain(part);
-        const comboMultiplier = Math.min(2.0, 1.0 + (this.combo - 1) * 0.1);
-        const skillMultiplier = this.getSkillMultiplier(part);
         
-        const gain = baseGain * comboMultiplier * skillMultiplier;
+        // タップ音を即座に再生
+        this.playSound('button_hover');
         
-        this.balance[part] += gain;
-        this.relaxGauge = Math.min(100, this.relaxGauge + gain);
-
-        // エフェクト表示
-        this.showClickEffect(event);
-        this.playSound('click_soft');
-
+        const now = performance.now();
+        const targetElement = document.getElementById(`part-${this.currentTarget}`);
+        
+        if (partName === this.currentTarget) {
+            // 正解！
+            const reactionTime = now - this.targetStartTime;
+            
+            if (reactionTime <= 3000) {
+                // 3秒以内にクリック成功
+                this.combo++;
+                
+                // 効果計算
+                const baseGain = this.getPartBaseGain(partName);
+                const comboMultiplier = Math.min(2.0, 1.0 + (this.combo - 1) * 0.1);
+                const skillMultiplier = this.getSkillMultiplier(partName);
+                const timeBonus = Math.max(0.5, (3000 - reactionTime) / 3000); // 早いほどボーナス
+                
+                const gain = baseGain * comboMultiplier * skillMultiplier * timeBonus;
+                
+                this.balance[partName] += gain;
+                this.relaxGauge = Math.min(100, this.relaxGauge + gain);
+                
+                // 成功エフェクト
+                targetElement.classList.remove('glowing');
+                targetElement.classList.add('hit');
+                setTimeout(() => targetElement.classList.remove('hit'), 300);
+                
+                // 最高コンボ更新チェック
+                if (this.combo > this.maxCombo) {
+                    this.maxCombo = this.combo;
+                }
+                
+                // 自動スキル発動チェック
+                this.checkAutoSkillTrigger();
+                
+                // 成功音（少し遅らせて違いを明確に）
+                setTimeout(() => {
+                    this.playSound('click_soft');
+                }, 100);
+                console.log(`Hit! Reaction time: ${reactionTime.toFixed(0)}ms, Gain: ${gain.toFixed(2)}`);
+            } else {
+                // 時間切れ
+                this.handleMiss(targetElement, 'timeout');
+            }
+        } else {
+            // 間違った部位をクリック
+            this.handleMiss(targetElement, 'wrong_part');
+            
+            // 間違った部位をクリックした場合も同様にMISS表示
+        }
+        
+        // 次のターゲットを設定
+        this.setNextTarget();
+        
         // HUD更新
+        this.updateStatusPanel();
         this.updateHUD();
 
         // ゲージMAXチェック
         if (this.relaxGauge >= 100) {
+            this.gameActive = false;
+            if (this.targetInterval) {
+                clearInterval(this.targetInterval);
+                this.targetInterval = null;
+            }
             setTimeout(() => this.endGame(), 1000);
+        }
+    }
+    
+    handleMiss(targetElement, missType = 'timeout') {
+        this.combo = 0;
+        this.missCount++;
+        
+        // ミスエフェクト
+        if (targetElement) {
+            targetElement.classList.remove('glowing');
+        }
+        
+        // ミスタイプに応じた音を再生
+        if (missType === 'wrong_part') {
+            // 間違った部位をクリックした場合（ブザー音のような感じ）
+            setTimeout(() => {
+                this.playSound('skill_activate'); // 重めの音で失敗を表現
+            }, 50);
+        } else if (missType === 'timeout') {
+            // 時間切れの場合（がっかり音）
+            setTimeout(() => {
+                this.playSound('button_click'); // 落胆感のある音
+            }, 100);
+        }
+        
+        console.log(`Miss! Type: ${missType}, Combo reset`);
+    }
+    
+    showMissIndicator(targetElement) {
+        const missIndicator = document.getElementById('miss-indicator');
+        if (missIndicator && targetElement) {
+            // targetElementの実際の位置を取得
+            const rect = targetElement.getBoundingClientRect();
+            const gameCharacter = document.getElementById('game-character');
+            const gameRect = gameCharacter.getBoundingClientRect();
+            
+            // game-character内での相対位置をピクセルで計算
+            const relativeX = rect.left + rect.width / 2 - gameRect.left;
+            const relativeY = rect.top + rect.height / 2 - gameRect.top;
+            
+            // ピクセル位置で配置
+            missIndicator.style.left = relativeX + 'px';
+            missIndicator.style.top = relativeY + 'px';
+            missIndicator.style.display = 'block';
+            
+            // アニメーション終了後に非表示
+            setTimeout(() => {
+                missIndicator.style.display = 'none';
+            }, 600);
+        }
+    }
+    
+    showHitIndicator(targetElement, comboCount) {
+        const hitIndicator = document.getElementById('hit-indicator');
+        const hitText = document.getElementById('hit-text-content');
+        if (hitIndicator && hitText && targetElement) {
+            // targetElementの実際の位置を取得
+            const rect = targetElement.getBoundingClientRect();
+            const gameCharacter = document.getElementById('game-character');
+            const gameRect = gameCharacter.getBoundingClientRect();
+            
+            // コンボテキストを設定
+            hitText.textContent = `${comboCount} COMBO`;
+            
+            // game-character内での相対位置をピクセルで計算
+            const relativeX = rect.left + rect.width / 2 - gameRect.left;
+            const relativeY = rect.top + rect.height / 2 - gameRect.top;
+            
+            // ピクセル位置で配置
+            hitIndicator.style.left = relativeX + 'px';
+            hitIndicator.style.top = relativeY + 'px';
+            hitIndicator.style.display = 'block';
+            
+            // アニメーション終了後に非表示
+            setTimeout(() => {
+                hitIndicator.style.display = 'none';
+            }, 800);
+        }
+    }
+    
+    startBodyPartGame() {
+        console.log('Starting body part game...');
+        this.gameActive = true;
+        this.combo = 0;
+        this.maxCombo = 0;
+        this.missCount = 0;
+        this.updateStatusPanel();
+        this.setNextTarget();
+        
+        // 定期的にターゲットをチェンジ（時間切れ処理）
+        this.targetInterval = setInterval(() => {
+            if (this.currentTarget) {
+                const now = performance.now();
+                if (now - this.targetStartTime > 3000) {
+                    // 時間切れ
+                    const targetElement = document.getElementById(`part-${this.currentTarget}`);
+                    this.handleMiss(targetElement, 'timeout');
+                    this.setNextTarget();
+                    this.updateStatusPanel();
+                    this.updateHUD();
+                }
+            }
+        }, 100);
+    }
+    
+    setNextTarget() {
+        // 現在のターゲットをクリア
+        if (this.currentTarget) {
+            const oldTarget = document.getElementById(`part-${this.currentTarget}`);
+            if (oldTarget) {
+                oldTarget.classList.remove('glowing');
+            }
+        }
+        
+        // ランダムに新しいターゲットを選択
+        const bodyParts = ['shoulder', 'neck', 'back', 'waist', 'thigh', 'calf', 'foot'];
+        let newTarget;
+        do {
+            newTarget = bodyParts[Math.floor(Math.random() * bodyParts.length)];
+        } while (newTarget === this.currentTarget && bodyParts.length > 1);
+        
+        this.currentTarget = newTarget;
+        this.targetStartTime = performance.now();
+        
+        // 新しいターゲットを光らせる
+        const targetElement = document.getElementById(`part-${this.currentTarget}`);
+        if (targetElement) {
+            targetElement.classList.add('glowing');
+        }
+        
+        console.log(`New target: ${this.currentTarget}`);
+    }
+    
+    checkAutoSkillTrigger() {
+        // オイルマッサージの自動発動条件：20コンボ以上 + リラックスゲージ50%以上
+        if (!this.skillsUsed.oil_massage && 
+            this.combo >= 20 && 
+            this.relaxGauge >= 50) {
+            console.log('Auto-triggering Oil Massage!');
+            this.useSkill('oil_massage');
+        }
+        
+        // リンパマッサージの自動発動条件：リラックスゲージ70%以上
+        if (!this.skillsUsed.lymph_massage && 
+            this.relaxGauge >= 70) {
+            console.log('Auto-triggering Lymph Massage!');
+            this.useSkill('lymph_massage');
         }
     }
 
@@ -442,8 +697,19 @@ class GameState {
     }
 
     getSkillMultiplier(part) {
-        // スキル効果の計算（簡略化）
-        return 1.0;
+        let multiplier = 1.0;
+        
+        // オイルマッサージの効果（クリック倍率+100%）
+        if (this.activeSkills.oil_massage) {
+            multiplier += 1.0;
+        }
+        
+        // リンパマッサージの効果（クリック倍率+200%）
+        if (this.activeSkills.lymph_massage) {
+            multiplier += 2.0;
+        }
+        
+        return multiplier;
     }
 
     showClickEffect(event) {
@@ -483,29 +749,131 @@ class GameState {
             comboElement.textContent = `コンボ: ${this.combo}`;
         }
     }
+    
+    updateStatusPanel() {
+        const currentComboElement = document.getElementById('current-combo');
+        const maxComboElement = document.getElementById('max-combo');
+        const missCountElement = document.getElementById('miss-count');
+        
+        if (currentComboElement) {
+            currentComboElement.textContent = this.combo;
+        }
+        
+        if (maxComboElement) {
+            maxComboElement.textContent = this.maxCombo;
+        }
+        
+        if (missCountElement) {
+            missCountElement.textContent = this.missCount;
+        }
+    }
 
     useSkill(skillId) {
-        if (this.skillCooldowns[skillId] && this.skillCooldowns[skillId] > Date.now()) {
+        // 既に使用済みかチェック
+        if (this.skillsUsed[skillId]) {
+            return;
+        }
+        
+        // 他のスキルが使用中かチェック
+        if (Object.keys(this.activeSkills).length > 0) {
             return;
         }
 
         const skillData = this.gameData.skills.find(s => s.skill_id === skillId);
         if (!skillData) return;
 
-        this.playSound('skill_activate');
+        // カットインを表示
+        this.showSkillCutin(skillId);
         
-        // スキル効果を適用（簡略化）
-        const duration = parseInt(skillData.duration) * 1000;
-        this.skillCooldowns[skillId] = Date.now() + duration + 5000; // クールダウン5秒
-
-        // スキルボタンの視覚的フィードバック
-        const skillButton = document.querySelector(`[data-skill="${skillId}"]`);
-        if (skillButton) {
-            skillButton.style.opacity = '0.5';
+        // 短い遅延後にスキル効果開始
+        setTimeout(() => {
+            this.playSound('skill_activate');
+            
+            const duration = parseInt(skillData.duration) * 1000;
+            
+            // スキル効果をアクティブにする
+            this.activeSkills[skillId] = true;
+            this.skillsUsed[skillId] = true;
+            
+            // 全スキルボタンを無効化
+            this.updateSkillButtons();
+            
+            // タイマー表示開始
+            this.startSkillTimer(skillId, duration);
+            
+            // 効果終了タイマー
             setTimeout(() => {
-                skillButton.style.opacity = '1';
-            }, duration + 5000);
+                delete this.activeSkills[skillId];
+                this.stopSkillTimer(skillId);
+                this.updateSkillButtons();
+            }, duration);
+            
+            console.log(`Skill ${skillId} activated for ${duration}ms`);
+        }, 1000); // カットイン表示後1秒で効果開始
+    }
+    
+    showSkillCutin(skillId) {
+        const cutinElement = document.getElementById('skill-cutin');
+        const cutinImage = document.getElementById('cutin-image');
+        
+        if (cutinElement && cutinImage) {
+            cutinImage.src = `assets/ui/cutin_${skillId.replace('_massage', '')}.svg`;
+            cutinElement.style.display = 'flex';
+            
+            // 2秒後にカットインを隠す
+            setTimeout(() => {
+                cutinElement.style.display = 'none';
+            }, 2000);
         }
+    }
+    
+    startSkillTimer(skillId, duration) {
+        const timerElement = document.getElementById(`timer-${skillId.replace('_massage', '')}`);
+        if (!timerElement) return;
+        
+        timerElement.style.display = 'flex';
+        let remainingTime = Math.ceil(duration / 1000);
+        timerElement.textContent = remainingTime;
+        
+        this.skillTimers[skillId] = setInterval(() => {
+            remainingTime--;
+            timerElement.textContent = remainingTime;
+            
+            if (remainingTime <= 0) {
+                this.stopSkillTimer(skillId);
+            }
+        }, 1000);
+    }
+    
+    stopSkillTimer(skillId) {
+        const timerElement = document.getElementById(`timer-${skillId.replace('_massage', '')}`);
+        if (timerElement) {
+            timerElement.style.display = 'none';
+        }
+        
+        if (this.skillTimers[skillId]) {
+            clearInterval(this.skillTimers[skillId]);
+            delete this.skillTimers[skillId];
+        }
+    }
+
+    updateSkillButtons() {
+        const skillButtons = document.querySelectorAll('.skill-btn');
+        skillButtons.forEach(button => {
+            const skillId = button.dataset.skill;
+            
+            if (this.skillsUsed[skillId] || Object.keys(this.activeSkills).length > 0) {
+                button.classList.add('disabled');
+                button.classList.remove('active');
+            } else {
+                button.classList.remove('disabled');
+                if (this.activeSkills[skillId]) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            }
+        });
     }
 
     endGame() {
@@ -552,8 +920,70 @@ class GameState {
     }
 
     playSound(soundId) {
-        // 音響実装（簡略化）
-        console.log(`Playing sound: ${soundId}`);
+        try {
+            // AudioContextを初回のみ作成
+            if (!this.audioContext) {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            
+            // AudioContextがsuspendedの場合は再開
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+            
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+            
+            // 音の設定（soundIdに応じて変更）
+            let frequency, duration, volume, type = 'sine';
+            
+            switch(soundId) {
+                case 'button_hover':
+                    frequency = 800;
+                    duration = 0.1;
+                    volume = 0.15;
+                    type = 'sine';
+                    break;
+                case 'click_soft':
+                    frequency = 1200;
+                    duration = 0.15;
+                    volume = 0.2;
+                    type = 'sine';
+                    break;
+                case 'skill_activate':
+                    frequency = 400;
+                    duration = 0.3;
+                    volume = 0.25;
+                    type = 'square';
+                    break;
+                case 'button_click':
+                    frequency = 300;
+                    duration = 0.2;
+                    volume = 0.18;
+                    type = 'triangle';
+                    break;
+                default:
+                    frequency = 600;
+                    duration = 0.1;
+                    volume = 0.15;
+                    type = 'sine';
+            }
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, this.audioContext.currentTime);
+            gainNode.gain.setValueAtTime(volume, this.audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, this.audioContext.currentTime + duration);
+            
+            oscillator.start(this.audioContext.currentTime);
+            oscillator.stop(this.audioContext.currentTime + duration);
+            
+            console.log(`Playing sound: ${soundId} (${frequency}Hz, ${duration}s, ${type})`);
+        } catch (error) {
+            console.log(`Sound playback failed: ${soundId}`, error);
+        }
     }
 
     exitGame() {
@@ -579,42 +1009,8 @@ function testBasicFunctionality() {
         console.log('Start button position:', startBtn.getBoundingClientRect());
     }
     
-    // 直接クリックイベントをテスト
-    if (startBtn) {
-        startBtn.onclick = function() {
-            console.log('Direct onclick worked!');
-            // 会話画面に移動
-            const titleScreen = document.getElementById('title-screen');
-            const dialogScreen = document.getElementById('dialog-screen');
-            if (titleScreen) titleScreen.classList.remove('active');
-            if (dialogScreen) dialogScreen.classList.add('active');
-            alert('ゲーム開始！会話画面に移動しました');
-        };
-    }
+    // 直接クリックイベントをテスト（デバッグ用）
     
-    // 他のボタンも直接設定
-    const configBtn = document.getElementById('btn-config');
-    if (configBtn) {
-        configBtn.onclick = function() {
-            console.log('Config button clicked!');
-            const titleScreen = document.getElementById('title-screen');
-            const configScreen = document.getElementById('config-screen');
-            if (titleScreen) titleScreen.classList.remove('active');
-            if (configScreen) configScreen.classList.add('active');
-        };
-    }
-    
-    const nextBtn = document.getElementById('btn-next');
-    if (nextBtn) {
-        nextBtn.onclick = function() {
-            console.log('Next button clicked!');
-            const dialogScreen = document.getElementById('dialog-screen');
-            const gameScreen = document.getElementById('game-screen');
-            if (dialogScreen) dialogScreen.classList.remove('active');
-            if (gameScreen) gameScreen.classList.add('active');
-            alert('メインゲーム画面に移動しました');
-        };
-    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

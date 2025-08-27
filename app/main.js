@@ -25,32 +25,33 @@ function createWindow() {
   // 日本語メニューを設定
   const template = [
     {
-      label: 'ファイル',
+      label: 'メニュー',
       submenu: [
         {
-          label: '終了',
-          accelerator: 'CmdOrCtrl+Q',
-          click: () => {
-            app.quit();
-          }
-        }
-      ]
-    },
-    {
-      label: '表示',
-      submenu: [
-        {
-          label: '再読み込み',
+          label: 'タイトルに戻る',
           accelerator: 'CmdOrCtrl+R',
           click: (item, focusedWindow) => {
             if (focusedWindow) focusedWindow.reload();
           }
         },
         {
+          type: 'separator'
+        },
+        {
           label: '開発者ツール',
           accelerator: 'F12',
           click: (item, focusedWindow) => {
             if (focusedWindow) focusedWindow.webContents.toggleDevTools();
+          }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'ゲーム終了',
+          accelerator: 'CmdOrCtrl+Q',
+          click: () => {
+            app.quit();
           }
         }
       ]

@@ -16,10 +16,40 @@
                 <h1>整体クリック・セラピー</h1>
                 <p class="subtitle">～癒しのリラクゼーション～</p>
             </div>
+            
+            <!-- キャラクター選択エリア -->
+            <div class="character-selection">
+                <h3>施術を受けるお客様を選んでください</h3>
+                <div class="character-cards">
+                    <div class="character-card" data-character="koharu">
+                        <div class="character-portrait" id="portrait-koharu"></div>
+                        <div class="character-info">
+                            <h4>春野こはる</h4>
+                            <p>20歳・OL</p>
+                            <p>デスクワーク続きで肩こりが...</p>
+                        </div>
+                    </div>
+                    <div class="character-card" data-character="suzu">
+                        <div class="character-portrait" id="portrait-suzu"></div>
+                        <div class="character-info">
+                            <h4>青海すず</h4>
+                            <p>24歳・看護師</p>
+                            <p>立ち仕事で足腰が疲れて...</p>
+                        </div>
+                    </div>
+                    <div class="character-card" data-character="michiru">
+                        <div class="character-portrait" id="portrait-michiru"></div>
+                        <div class="character-info">
+                            <h4>橙井みちる</h4>
+                            <p>22歳・学生</p>
+                            <p>勉強で首や背中が痛くて...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="menu-buttons">
                 <button id="btn-start" class="menu-btn">Start</button>
-                <button id="btn-load" class="menu-btn">Load</button>
-                <button id="btn-config" class="menu-btn">Config</button>
                 <button id="btn-exit" class="menu-btn">Exit</button>
             </div>
             <div class="character-preview" id="title-character"></div>
@@ -86,23 +116,62 @@
 
             <!-- スキルパネル -->
             <div class="skill-panel">
-                <h3>スキル</h3>
-                <button class="skill-btn" id="skill-warm-towel" data-skill="warm_towel">
-                    <div class="skill-icon">🔥</div>
-                    <span>温タオル</span>
+                <h3>オートスキル</h3>
+                <button class="skill-btn" id="skill-oil" data-skill="oil_massage">
+                    <div class="skill-timer" id="timer-oil" style="display: none;">10</div>
+                    <div class="skill-icon">💧</div>
+                    <span>オイルマッサージ</span>
                 </button>
-                <button class="skill-btn" id="skill-pressure" data-skill="finger_pressure">
-                    <div class="skill-icon">👆</div>
-                    <span>指圧強化</span>
-                </button>
-                <button class="skill-btn" id="skill-rhythm" data-skill="rhythm_assist">
-                    <div class="skill-icon">🎵</div>
-                    <span>リズム補助</span>
+                <button class="skill-btn" id="skill-lymph" data-skill="lymph_massage">
+                    <div class="skill-timer" id="timer-lymph" style="display: none;">10</div>
+                    <div class="skill-icon">💆</div>
+                    <span>リンパマッサージ</span>
                 </button>
             </div>
 
+            <!-- ステータスパネル -->
+            <div class="status-panel">
+                <h3>ステータス</h3>
+                <div class="status-item">
+                    <span class="status-label">現在コンボ:</span>
+                    <span class="status-value" id="current-combo">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">最高コンボ:</span>
+                    <span class="status-value" id="max-combo">0</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">ミス回数:</span>
+                    <span class="status-value" id="miss-count">0</span>
+                </div>
+            </div>
+
             <!-- キャラクター表示 -->
-            <div class="character-display" id="game-character"></div>
+            <div class="character-display" id="game-character">
+                <!-- 身体部位のクリックエリア -->
+                <div class="body-part" id="part-shoulder" data-part="shoulder" style="top: 15%; left: 45%; width: 10%; height: 8%;"></div>
+                <div class="body-part" id="part-neck" data-part="neck" style="top: 8%; left: 48%; width: 4%; height: 8%;"></div>
+                <div class="body-part" id="part-back" data-part="back" style="top: 25%; left: 40%; width: 20%; height: 15%;"></div>
+                <div class="body-part" id="part-waist" data-part="waist" style="top: 40%; left: 42%; width: 16%; height: 10%;"></div>
+                <div class="body-part" id="part-thigh" data-part="thigh" style="top: 55%; left: 38%; width: 24%; height: 15%;"></div>
+                <div class="body-part" id="part-calf" data-part="calf" style="top: 72%; left: 40%; width: 20%; height: 12%;"></div>
+                <div class="body-part" id="part-foot" data-part="foot" style="top: 85%; left: 42%; width: 16%; height: 8%;"></div>
+            </div>
+            
+            <!-- スキルカットイン -->
+            <div class="skill-cutin" id="skill-cutin" style="display: none;">
+                <img id="cutin-image" src="" alt="スキルカットイン" />
+            </div>
+            
+            <!-- ミス表示 -->
+            <div class="miss-indicator" id="miss-indicator" style="display: none;">
+                <span class="miss-text">MISS</span>
+            </div>
+            
+            <!-- 成功表示 -->
+            <div class="hit-indicator" id="hit-indicator" style="display: none;">
+                <span class="hit-text" id="hit-text-content">1 COMBO</span>
+            </div>
         </div>
 
         <!-- エンディング画面 -->

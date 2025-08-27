@@ -1,0 +1,54 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <!-- マッサージベッドに横たわるみちる -->
+  <g transform="translate(200, 150)">
+    <!-- 体（横向き） -->
+    <ellipse cx="0" cy="0" rx="120" ry="40" fill="#FF6347" />
+    
+    <!-- 頭 -->
+    <ellipse cx="-100" cy="-10" rx="35" ry="40" fill="#FDBCB4" stroke="#E8A798" stroke-width="1" />
+    
+    <!-- 髪（オレンジっぽい茶色） -->
+    <path d="M-135 -40 Q-100 -50 -65 -40 Q-65 -20 -75 -5 Q-85 10 -100 5 Q-115 10 -125 -5 Q-135 -20 -135 -40" fill="#CD853F" />
+    
+    <!-- 目（閉じている） -->
+    <path d="M-115 -15 Q-110 -12 -105 -15" stroke="#2F4F4F" stroke-width="2" fill="none" />
+    <path d="M-95 -15 Q-90 -12 -85 -15" stroke="#2F4F4F" stroke-width="2" fill="none" />
+    
+    <!-- 鼻 -->
+    <ellipse cx="-100" cy="-5" rx="1.5" ry="2" fill="#E8A798" />
+    
+    <!-- 口（元気な表情でも寝てる） -->
+    <path d="M-105 5 Q-100 8 -95 5" stroke="#D2691E" stroke-width="1.5" fill="none" />
+    
+    <!-- 腕（リラックスした状態） -->
+    <ellipse cx="-50" cy="15" rx="15" ry="60" fill="#FDBCB4" transform="rotate(10)" />
+    <ellipse cx="50" cy="15" rx="15" ry="60" fill="#FDBCB4" transform="rotate(-10)" />
+    
+    <!-- 手 -->
+    <circle cx="-35" cy="70" r="10" fill="#FDBCB4" />
+    <circle cx="65" cy="70" r="10" fill="#FDBCB4" />
+    
+    <!-- 足（少し曲がった状態） -->
+    <ellipse cx="80" cy="20" rx="12" ry="50" fill="#FDBCB4" />
+    <ellipse cx="100" cy="25" rx="12" ry="45" fill="#FDBCB4" />
+    
+    <!-- リラックスしている様子のエフェクト（オレンジ系） -->
+    <g opacity="0.6">
+      <circle cx="-120" cy="-60" r="3" fill="#FFB347">
+        <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="-80" cy="-70" r="2" fill="#FFB347">
+        <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite" />
+      </circle>
+      <circle cx="-110" cy="-80" r="2.5" fill="#FFB347">
+        <animate attributeName="opacity" values="0.4;0.9;0.4" dur="3s" repeatCount="indefinite" />
+      </circle>
+    </g>
+    
+    <!-- 「zzz」みたいな睡眠エフェクト -->
+    <text x="-80" y="-90" fill="#CD853F" font-size="14" opacity="0.7" font-family="Arial">
+      <animate attributeName="opacity" values="0;1;0" dur="3s" repeatCount="indefinite" />
+      ～
+    </text>
+  </g>
+</svg>

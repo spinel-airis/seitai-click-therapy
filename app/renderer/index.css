@@ -60,7 +60,7 @@ body {
 
 .title-logo {
     position: absolute;
-    top: 20%;
+    top: 10%;
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -85,7 +85,7 @@ body {
 /* キャラクター選択エリア */
 .character-selection {
     position: absolute;
-    bottom: 20%;
+    bottom: 30%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 50;
@@ -153,7 +153,7 @@ body {
 
 .menu-buttons {
     position: absolute;
-    bottom: 5%;
+    bottom: 10%;
     left: 50%;
     transform: translateX(-50%);
     z-index: 100;
@@ -292,20 +292,36 @@ body {
     align-items: center;
 }
 
-.gauge-container label {
+.gauge-container label, .gauge-container-small label {
     display: block;
     color: var(--text-light);
     font-size: 16px;
     margin-bottom: 8px;
 }
 
-.gauge {
+.gauge-container-small {
+    margin-bottom: 15px;
+}
+
+.gauge-container-small label {
+    font-size: 14px;
+    color: #cccccc;
+    margin-bottom: 5px;
+}
+
+.gauge, .gauge-small {
     position: relative;
     width: 300px;
     height: 24px;
     background: #223;
     border-radius: 12px;
     overflow: hidden;
+}
+
+.gauge-small {
+    width: 140px;
+    height: 20px;
+    border-radius: 10px;
 }
 
 .gauge-fill {
@@ -394,7 +410,7 @@ body {
 
 .skill-panel {
     position: absolute;
-    left: 20px;
+    left: 80px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--panel);
@@ -414,7 +430,7 @@ body {
 
 .status-panel {
     position: absolute;
-    right: 20px;
+    right: 80px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--panel);

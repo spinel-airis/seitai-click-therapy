@@ -14,7 +14,6 @@
             <div class="background" id="title-bg"></div>
             <div class="title-logo">
                 <h1>整体クリック・セラピー</h1>
-                <p class="subtitle">～癒しのリラクゼーション～</p>
             </div>
             
             <!-- キャラクター選択エリア -->
@@ -72,20 +71,6 @@
         <div id="game-screen" class="screen">
             <div class="background" id="game-bg"></div>
             
-            <!-- HUD -->
-            <div class="hud-panel">
-                <div class="gauge-container">
-                    <label>リラックスゲージ</label>
-                    <div class="gauge">
-                        <div class="gauge-fill" id="relax-gauge"></div>
-                        <div class="gauge-text" id="gauge-percentage">0%</div>
-                    </div>
-                </div>
-                
-                <div class="combo-display">
-                    <div class="combo-counter" id="combo-counter">コンボ: 0</div>
-                </div>
-            </div>
 
             <!-- 施術エリア -->
             <div class="therapy-area">
@@ -132,6 +117,13 @@
             <!-- ステータスパネル -->
             <div class="status-panel">
                 <h3>ステータス</h3>
+                <div class="gauge-container-small">
+                    <label>リラックスゲージ</label>
+                    <div class="gauge-small">
+                        <div class="gauge-fill" id="relax-gauge"></div>
+                        <div class="gauge-text" id="gauge-percentage">0%</div>
+                    </div>
+                </div>
                 <div class="status-item">
                     <span class="status-label">現在コンボ:</span>
                     <span class="status-value" id="current-combo">0</span>
